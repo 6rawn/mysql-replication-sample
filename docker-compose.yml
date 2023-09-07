@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  node-1:
+    image: mysql:8.1.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    restart: always
+    networks:
+      mysql-network:
+        ipv4_address: 192.168.114.2
+    volumes:
+      - ./master:/etc/mysql/conf.d/
+      - ./scripts:/scripts
+
+  node-2:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    restart: always
+    networks:
+      mysql-network:
+        ipv4_address: 192.168.114.3
+    volumes:
+      - ./replica-2:/etc/mysql/conf.d/
+      - ./scripts:/scripts
+
+  node-3:
+    image: mysql:8.1.0
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    restart: always
+    networks:
+      mysql-network:
+        ipv4_address: 192.168.114.4
+    volumes:
+      - ./replica-3:/etc/mysql/conf.d/
+      - ./scripts:/scripts
+
+  # cli:
+  #   image: mysql:8.1.0
+  #   networks:
+  #     - mysql-network
+  #   command: mysql -hmysql -uuser -ppassword db
+
+networks:
+  mysql-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.114.0/24
